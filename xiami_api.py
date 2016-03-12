@@ -37,24 +37,24 @@ class xiami_api:
         artist_name = ''
         if html != '':
             album_match = re.findall(r'<a\s+class="song"\s+href="(.+?)"\s+title="(.+?)"\s*>', html)
-            print(album_match)
+            #print(album_match)
             r = re.compile(r'<a\s+class="singer"\s+href=".+?"\s+title=".+?"\s*><b.*?>(.+?)</b>\s*</a>', re.S)
             artist_match = r.findall(html)
-            print(artist_match)
+            #print(artist_match)
 
             if len(artist_match)>0:
                 artist_name = artist_match[0]
-            print(artist_name)
+            #print(artist_name)
 
             if len(album_match)>0:
                 for i in range(0,len(album_match)):
-                    if album_match[i][1] == album and artist_name == artist:
+                    if True or (album_match[i][1] == album and artist_name == artist):
             	        album_url = album_match[i][0]
                         album_name= album_match[i][1]
                         is_exist = '1'
                         break
-            print(album_url)
-            print(album_name)
+            #print(album_url)
+            #print(album_name)
         result = {'is_exist':is_exist, 'artist_name':artist_name, 'album_name':album_name, 'album_url':album_url};
         return result
 
@@ -106,7 +106,7 @@ class xiami_api:
                 abd_cover_url = abd_cover_url_match[0]
             else:
                 abd_cover_url = ''
-            print(abd_cover_url)
+            #print(abd_cover_url)
             ret_album['album_cover_url'] = abd_cover_url
             #匹配专辑细节
             #<div id="album_info" rel="v:rating">
@@ -136,7 +136,7 @@ class xiami_api:
                         abd_val = abd_td_a_match[0]
                     else:
                         abd_val = abd_td_match[0][1]
-                print(abd_name+' = '+abd_val)
+                #print(abd_name+' = '+abd_val)
                 ret_album_detail[abd_name] = abd_val
                 ret_album['album_detail'] = ret_album_detail
             #匹配专辑歌目
@@ -152,7 +152,7 @@ class xiami_api:
                     tracks_str = tracks_str.replace('\r','')
                     tracks_str = tracks_str.replace('\n','')
                     tracks_str = tracks_str.replace('\t','')
-                    print(disc_name)
+                    #print(disc_name)
 	            #print(tracks_str)
                     r = re.compile(r'<td.*?class="trackid".*?>(.*?)</td>.*?<td.*?class="song_name".*?>.*?<a.*?href="/song/.+?".*?>(.*?)</a>(.*?)</td>', re.S)
                     single_track_match = r.findall(tracks_str)
@@ -160,19 +160,22 @@ class xiami_api:
                     for single_track_item in single_track_match:
                         track_id = single_track_item[0].rstrip()
                         track_name = single_track_item[1].rstrip()
+                        print(track_name)
                         if single_track_item[2] == '':
                             track_singer = artist_name
                         else:
                             r = re.compile(r'<a.*?>(.*?)</a>', re.S)
                             single_track_mv_match = r.findall(single_track_item[2])
-                            if len(single_track_mv_match)>0:
+                            if len(single_track_mv_match)>0: #这里有问题，有ＭＶ的时候不能取得歌手名
                                 track_singer = artist_name
                             else:
                                 track_singer = single_track_item[2].rstrip()
                         ret_album_single_track['track_name'] = track_name
                         ret_album_single_track['track_singer'] = track_singer
                         ret_album_disc[track_id] = ret_album_single_track
+                        ret_album_single_track = {}
                     ret_album_tracks[disc_name] = ret_album_disc
+                    ret_album_disc = {}
             ret_album['album_tracks'] = ret_album_tracks
         return ret_album
         
